@@ -46,15 +46,21 @@ class _DashBoardState extends State<DashBoard> {
     _myText2Controller.text = (_counter * 50).toString();
   }
 
+  // Function to check if From and To locations are the same
   void _checkLocations() {
     if (_selectedFrom != null &&
         _selectedTo != null &&
         _selectedFrom == _selectedTo) {
+      // Show SnackBar to alert the user
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Error: 'From' and 'To' locations cannot be the same!"),
         ),
       );
+      // Reset the 'To' location if the same as 'From'
+      setState(() {
+        _selectedTo = null;
+      });
     }
   }
 
@@ -67,6 +73,12 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   Widget build(BuildContext context) {
+    // Filter locations to exclude the selected 'From' location from the 'To' dropdown
+    List<String> availableLocations = List.from(locations);
+    if (_selectedFrom != null) {
+      availableLocations.remove(_selectedFrom);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Dashboard"),
@@ -84,14 +96,14 @@ class _DashBoardState extends State<DashBoard> {
                     _selectedFrom = value;
                   });
                   _checkLocations();
-                }),
+                }, locations),
                 Icon(Icons.compare_arrows_outlined, size: 28),
                 _buildDropdown("To", _selectedTo, (value) {
                   setState(() {
                     _selectedTo = value;
                   });
                   _checkLocations();
-                }),
+                }, availableLocations),
                 _buildDateTimeField(),
               ],
             ),
@@ -124,7 +136,8 @@ class _DashBoardState extends State<DashBoard> {
 
   // Dropdown field builder
   Widget _buildDropdown(
-      String label, String? value, ValueChanged<String?> onChanged) {
+      String label, String? value,
+      ValueChanged<String?> onChanged, List<String> availableLocations) {
     return SizedBox(
       width: 200.0,
       child: DropdownButtonFormField<String>(
@@ -135,9 +148,12 @@ class _DashBoardState extends State<DashBoard> {
             borderRadius: BorderRadius.circular(5.0),
           ),
         ),
-        value: value,
-        onChanged: onChanged,
-        items: locations.map((location) {
+        value:
+            value, // Default to the selected value or null if nothing is selected
+        onChanged: (availableLocations.isNotEmpty)
+            ? onChanged
+            : null, // Ensure that the dropdown is enabled when there are options
+        items: availableLocations.map((location) {
           return DropdownMenuItem(
             value: location,
             child: Text(location),
