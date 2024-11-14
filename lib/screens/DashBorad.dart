@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:project_red/assets/colors.dart';
 
 class DashBoard extends StatefulWidget {
   const DashBoard({super.key});
@@ -81,11 +82,17 @@ class _DashBoardState extends State<DashBoard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Dashboard"),
+        backgroundColor: mysecondarycolor,
+        title: Center(
+            child: Text(
+          "Dashboard",
+          style: TextStyle(color: mytertiarycolor),
+        )),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             // Location Row
             Row(
@@ -112,10 +119,22 @@ class _DashBoardState extends State<DashBoard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildCounterButton(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildCounterButton(
                     Icons.remove, Colors.red, _decrementCounter),
+                    SizedBox(
+                      width: 5,
+                    ),
                 _buildTextField("Counter", _myTextController),
+                    SizedBox(
+                      width: 5,
+                    ),
                 _buildCounterButton(Icons.add, Colors.green, _incrementCounter),
+                  ],
+                ),
+
                 _buildTextField("Total", _myText2Controller),
               ],
             ),
@@ -184,7 +203,7 @@ class _DashBoardState extends State<DashBoard> {
   // Text field builder for counter and total
   Widget _buildTextField(String label, TextEditingController controller) {
     return SizedBox(
-      width: 120.0,
+      width: 250.0,
       child: TextField(
         controller: controller,
         keyboardType: TextInputType.number,
@@ -203,6 +222,7 @@ class _DashBoardState extends State<DashBoard> {
   Widget _buildCounterButton(
       IconData icon, Color color, VoidCallback onPressed) {
     return Container(
+      
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(8.0),
