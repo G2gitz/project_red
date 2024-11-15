@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
+import 'package:intl/intl.dart'; // Add this import for DateFormat
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -34,6 +34,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Format the current time to HH:mm
+    String formattedTime = DateFormat('hh:mm a').format(currentTime);
+
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
@@ -75,9 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                 ),
-                //SizedBox(width:10),
-                Icon(Icons.swap_horiz_sharp,color: Colors.amber,size: 30.0,),
-                //Icon(Icons.directions_bus),
+                Icon(Icons.swap_horiz_sharp, color: Colors.amber, size: 30.0),
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     decoration: InputDecoration(
@@ -116,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'Current Date and Time: ${currentTime.toLocal()}',
+                'Current Time: $formattedTime', // Display formatted time here
                 style: TextStyle(fontSize: 16, color: Color(0xFF344955)),
               ),
             ),
