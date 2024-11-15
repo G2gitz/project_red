@@ -1,6 +1,28 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:intl/intl.dart'; // Add this import for DateFormat
+
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Bus Ticket Booker',
+      theme: ThemeData(
+        primaryColor: Colors.purple,
+      ),
+      home: HomeScreen(),
+    );
+  }
+}
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -19,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // Update the current time every second
     Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         currentTime = DateTime.now();
@@ -28,15 +51,45 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void updateTotal() {
     setState(() {
-      total = count * 50;
+      total = count * 50; // Assume each ticket costs $50
     });
+  }
+
+  // Function to save booking to Firestore
+  void saveBooking(String paymentMethod) async {
+    if (selectedFrom != null && selectedTo != null && count > 0) {
+      CollectionReference bookings =
+          FirebaseFirestore.instance.collection('bookings');
+
+      try {
+        await bookings.add({
+          'from': selectedFrom,
+          'to': selectedTo,
+          'time': DateFormat('hh:mm a')
+              .format(currentTime), // Store time as formatted string
+          'quantity': count,
+          'total_price': total,
+          'payment_method': paymentMethod,
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Booking successful with $paymentMethod!')),
+        );
+      } catch (e) {
+        print('Error saving booking: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save booking: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill all details before proceeding')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Format the current time to HH:mm
     String formattedTime = DateFormat('hh:mm a').format(currentTime);
-
 
     return Scaffold(
       appBar: AppBar(
@@ -118,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'Current Time: $formattedTime', // Display formatted time here
+                'Current Time: $formattedTime',
                 style: TextStyle(fontSize: 16, color: Color(0xFF344955)),
               ),
             ),
@@ -177,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     textStyle: TextStyle(fontSize: 16),
                   ),
                   onPressed: () {
-                    // Implement Pay Online functionality
+                    saveBooking('online');
                   },
                   child: Text('Pay Online'),
                 ),
@@ -188,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     textStyle: TextStyle(fontSize: 16),
                   ),
                   onPressed: () {
-                    // Implement Pay Now functionality
+                    saveBooking('pay later');
                   },
                   child: Text('Pay Now'),
                 ),
